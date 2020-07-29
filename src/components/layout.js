@@ -6,6 +6,8 @@ import Header from './header'
 import './layout.css'
 import stripeLogo from '../images/powered_by_stripe.svg'
 
+import '@stripe/stripe-js' // https://github.com/stripe/stripe-js#import-as-a-side-effect
+
 const Layout = ({ children }) => (
   <StaticQuery
     query={graphql`
@@ -31,8 +33,11 @@ const Layout = ({ children }) => (
           {children}
           <footer>
             <div>
-              © 2019, Built by <a href="https://twitter.com/thorwebdev">Thor</a>{' '}
-              with <a href="https://www.gatsbyjs.org">Gatsby</a>
+              Built by <a href="https://twitter.com/thorwebdev">Thor</a> with{' '}
+              <a href="https://www.gatsbyjs.org">Gatsby</a> | View{' '}
+              <a href="https://github.com/gatsbyjs/gatsby/tree/master/examples/ecommerce-tutorial-with-stripe">
+                source
+              </a>
             </div>
             <div>
               <a href="https://stripe.com">

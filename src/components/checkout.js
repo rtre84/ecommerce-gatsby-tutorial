@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
+import getStripe from '../utils/stripejs'
 
 const buttonStyles = {
   fontSize: '13px',
   textAlign: 'center',
-  color: '#fff',
-  outline: 'none',
+  color: '#000',
   padding: '12px 60px',
   boxShadow: '2px 5px 10px rgba(0,0,0,.1)',
   backgroundColor: 'rgb(255, 178, 56)',
@@ -12,39 +12,43 @@ const buttonStyles = {
   letterSpacing: '1.5px',
 }
 
-const Checkout = class extends React.Component {
-  // Initialise Stripe.js with your publishable key.
-  // You can find your key in the Dashboard:
-  // https://dashboard.stripe.com/account/apikeys
-  componentDidMount() {
-    this.stripe = window.Stripe('pk_test_jG9s3XMdSjZF9Kdm5g59zlYd', {
-      betas: ['checkout_beta_4'],
-    })
-  }
+const buttonDisabledStyles = {
+  opacity: '0.5',
+  cursor: 'not-allowed',
+}
 
-  async redirectToCheckout(event) {
+const Checkout = () => {
+  const [loading, setLoading] = useState(false)
+
+  const redirectToCheckout = async event => {
     event.preventDefault()
-    const { error } = await this.stripe.redirectToCheckout({
-      items: [{ sku: 'sku_DjQJN2HJ1kkvI3', quantity: 1 }],
-      successUrl: `http://localhost:8000/page-2/`,
-      cancelUrl: `http://localhost:8000/`,
+    setLoading(true)
+
+    const stripe = await getStripe()
+    const { error } = await stripe.redirectToCheckout({
+      mode: 'payment',
+      lineItems: [{ price: process.env.GATSBY_BUTTON_PRICE_ID, quantity: 1 }],
+      successUrl: `${window.location.origin}/page-2/`,
+      cancelUrl: `${window.location.origin}/`,
     })
 
     if (error) {
       console.warn('Error:', error)
+      setLoading(false)
     }
   }
 
-  render() {
-    return (
-      <button
-        style={buttonStyles}
-        onClick={event => this.redirectToCheckout(event)}
-      >
-        BUY MY BOOK
-      </button>
-    )
-  }
+  return (
+    <button
+      disabled={loading}
+      style={
+        loading ? { ...buttonStyles, ...buttonDisabledStyles } : buttonStyles
+      }
+      onClick={redirectToCheckout}
+    >
+      BUY MY BOOK
+    </button>
+  )
 }
 
 export default Checkout
